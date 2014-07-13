@@ -16,7 +16,10 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-BASE_BOX_NAME = 'hashicorp/precise64'
+BASE_BOX_NAME = 'precise64'
+BASE_BOX_URI = 'http://files.vagrantup.com/precise64.box'
+
+# BASE_BOX_NAME = 'cloudify'
 
 Vagrant.configure('2') do |config|
 
@@ -30,6 +33,7 @@ Vagrant.configure('2') do |config|
     end
     cloudify.vm.network :private_network, ip: cloudify_ip
     cloudify.vm.box = BASE_BOX_NAME
+    cloudify.vm.box_url = BASE_BOX_URI
     cloudify.vm.hostname = 'cloudify'
     cloudify.vm.provision "shell", path: "provision.sh", privileged: false
   end

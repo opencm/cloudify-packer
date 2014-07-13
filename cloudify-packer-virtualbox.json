@@ -1,12 +1,8 @@
 {
-  "variables": {
-    "aws_access_key": "",
-    "aws_secret_key": ""
-  },
   "builders": [
     {
       "type": "virtualbox-ovf",
-      "source_path": "/home/nir0s/.vagrant.d/boxes/hashicorp-VAGRANTSLASH-precise64/1.1.0/virtualbox/box.ovf",
+      "source_path": "/home/nir0s/.vagrant.d/boxes/precise64/0/virtualbox/box.ovf",
       "vm_name": "cloudify",
       "ssh_username": "vagrant",
       "ssh_key_path": "/home/nir0s/.vagrant.d/insecure_private_key",
@@ -22,10 +18,19 @@
   "provisioners": [
     {
       "type": "shell",
+      "only": ["virtualbox-ovf"],
+      "inline": ["mkdir -p /home/vagrant/.ssh/"]
+    },
+    {
+      "type": "file",
+      "only": ["virtualbox-ovf"],
+      "source": "insecure_private_key",
+      "destination": "/home/vagrant/.ssh/insecure_private_key"
+    },
+    {
+      "type": "shell",
       "script": "provision.sh"
     }
   ],
-  "post-processors": [
-    "vagrant"
-  ]
+  "post-processors": ["vagrant"]
 }
