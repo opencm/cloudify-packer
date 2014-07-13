@@ -1,0 +1,31 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": ""
+  },
+  "builders": [
+    {
+      "type": "virtualbox-ovf",
+      "source_path": "/home/nir0s/.vagrant.d/boxes/hashicorp-VAGRANTSLASH-precise64/1.1.0/virtualbox/box.ovf",
+      "vm_name": "cloudify",
+      "ssh_username": "vagrant",
+      "ssh_key_path": "/home/nir0s/.vagrant.d/insecure_private_key",
+      "ssh_wait_timeout": "3m",
+      "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
+      "vboxmanage": [
+        ["modifyvm", "{{.Name}}", "--memory", "2048"],
+        ["modifyvm", "{{.Name}}", "--cpus", "2"],
+        ["modifyvm", "{{.Name}}", "--natdnshostresolver1", "on"]
+      ]
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "script": "provision.sh"
+    }
+  ],
+  "post-processors": [
+    "vagrant"
+  ]
+}
