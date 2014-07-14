@@ -6,10 +6,10 @@ sudo apt-get -y update &&
 
 # install prereqs
 echo installing prerequisites
-sudo apt-get install -y python-setuptools python-dev vim
-sudo apt-get purge pip
-sudo easy_install -U pip
-sudo wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py -O - | sudo python
+sudo apt-get install -y curl python-dev vim
+
+# install pip
+curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | sudo python
 
 # go home
 cd ~
@@ -39,43 +39,44 @@ cfy init simple_provider &&
 
 USERNAME=$(id -u -n)
 
-# FOR VAGRANT USAGE ONLY
-[ -z "$VAGRANT_BOOTSTRAP" ] && VAGRANT_BOOTSTRAP="True"
-if env | grep -q ^VAGRANT_BOOTSTRAP=
-then
+# copy the ssh key only when bootstrapping with vagrant. otherwise, implemented in packer
 # copy vagrant ssh key
-    echo copying ssh key
-    mkdir -p /home/${USERNAME}/.ssh/
-    cp /vagrant/insecure_private_key /home/${USERNAME}/.ssh/
-fi
+echo copying ssh key
+mkdir -p /home/${USERNAME}/.ssh/
+cp /vagrant/insecure_private_key /home/${USERNAME}/.ssh/cloudify_private_key
 
 # sudo iptables -L
 # sudo iptables -A INPUT -p tcp --dport ssh -j ACCEPT
 
-# configuring config yaml
+# configure yaml provider params
 sed -i "s|Enter-Public-IP-Here|127.0.0.1|g" cloudify-config.yaml
 sed -i "s|Enter-Private-IP-Here|127.0.0.1|g" cloudify-config.yaml
-sed -i "s|Enter-SSH-Key-Path-Here|/home/${USERNAME}/.ssh/insecure_private_key|g" cloudify-config.yaml
+sed -i "s|Enter-SSH-Key-Path-Here|/home/${USERNAME}/.ssh/cloudify_private_key|g" cloudify-config.yaml
 sed -i "s|Enter-SSH-Username-Here|${USERNAME}|g" cloudify-config.yaml
 
-# sed -i "s|{{ components_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-components_amd64.deb|g" cloudify-config.yaml
-# sed -i "s|{{ core_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-core_amd64.deb|g" cloudify-config.yaml
-# sed -i "s|{{ ui_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ui_amd64.deb|g" cloudify-config.yaml
-# sed -i "s|{{ ubuntu_agent_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ubuntu-agent_amd64.deb|g" cloudify-config.yaml
-# sed -i "s|{{ windows_agent_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-windows-agent_amd64.deb|g" cloudify-config.yaml
+# configure yaml packages
+sed -i "s|{{ components_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-components_amd64.deb|g" cloudify-config.yaml
+sed -i "s|{{ core_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-core_amd64.deb|g" cloudify-config.yaml
+sed -i "s|{{ ui_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ui_amd64.deb|g" cloudify-config.yaml
+sed -i "s|{{ ubuntu_agent_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ubuntu-agent_amd64.deb|g" cloudify-config.yaml
+sed -i "s|{{ windows_agent_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-windows-agent_amd64.deb|g" cloudify-config.yaml
 
-sed -i "s|{{ components_package_url }}|${COMPONENTS_PACKAGE_URL}|g" cloudify-config.yaml
-sed -i "s|{{ core_package_url }}|${CORE_PACKAGE_URL}|g" cloudify-config.yaml
-sed -i "s|{{ ui_package_url }}|${UI_PACKAGE_URL}|g" cloudify-config.yaml
-sed -i "s|{{ ubuntu_agent_url }}|${UBUNTU_AGENT_URL}|g" cloudify-config.yaml
-sed -i "s|{{ windows_agent_url }}|${WINDOWS_AGENT_URL}|g" cloudify-config.yaml
+# sed -i "s|{{ components_package_url }}|${COMPONENTS_PACKAGE_URL}|g" cloudify-config.yaml
+# sed -i "s|{{ core_package_url }}|${CORE_PACKAGE_URL}|g" cloudify-config.yaml
+# sed -i "s|{{ ui_package_url }}|${UI_PACKAGE_URL}|g" cloudify-config.yaml
+# sed -i "s|{{ ubuntu_agent_url }}|${UBUNTU_AGENT_URL}|g" cloudify-config.yaml
+# sed -i "s|{{ windows_agent_url }}|${WINDOWS_AGENT_URL}|g" cloudify-config.yaml
 
-# remove hashes to apply configuration
+# configure user for agents
+sed -i "s|#user: (no default - optional parameter)|user: ${USERNAME}|g" cloudify-config.yaml
+
+# remove hashes to override config defaults
 sed -i "s|^# ||g" cloudify-config.yaml
 
 # bootstrap the manager locally
 cfy bootstrap -v &&
 
+# deploy blueprint
 deploy tutorial nodecellar blueprint
 cd ~
 echo deploying nodecellar blueprint
@@ -84,10 +85,7 @@ mkdir -p ~/cloudify/blueprints
 tar -C ~/cloudify/blueprints -xzvf master.tar.gz
 rm master.tar.gz
 
+# source virtualenv on login
 echo "source /home/${USERNAME}/cloudify/bin/activate" >> /home/${USERNAME}/.bashrc
-
-# now all we have to do is create a box from the vagrant machine
-# this is OUTSIDE the scope of the vagrant provisioning script
-# vagrant box create
 
 echo bootstrap done.
