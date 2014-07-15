@@ -1,4 +1,4 @@
-PACKER_FILE=cloudify-packer-virtualbox.json
+PACKER_FILE=cloudify-packer.json
 cp ${PACKER_FILE}{,.bak}
 sed -i "s|{{ components_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-components_amd64.deb|g" ${PACKER_FILE}
 sed -i "s|{{ core_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-core_amd64.deb|g" ${PACKER_FILE}

@@ -16,25 +16,18 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-BASE_BOX_NAME = 'precise64'
-BASE_BOX_URI = 'http://files.vagrantup.com/precise64.box'
-
-# BASE_BOX_NAME = 'cloudify'
+BASE_BOX_NAME = 'cloudify'
 
 Vagrant.configure('2') do |config|
 
-  cloudify_ip = '11.0.0.7'
-
   config.vm.define :cloudify do |cloudify|
     cloudify.vm.provider :virtualbox do |vb|
-      vb.name = "cloudify"
-      vb.customize ['modifyvm', :id, '--memory', '1024']
+      vb.name = 'cloudify'
+      vb.customize ['modifyvm', :id, '--memory', '2048']
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     end
-    cloudify.vm.network :private_network, ip: cloudify_ip
+    cloudify.vm.network :private_network, ip: "11.0.0.7"
     cloudify.vm.box = BASE_BOX_NAME
-    cloudify.vm.box_url = BASE_BOX_URI
     cloudify.vm.hostname = 'cloudify'
-    cloudify.vm.provision "shell", path: "provision.sh", privileged: false
   end
 end

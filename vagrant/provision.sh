@@ -80,12 +80,15 @@ cfy bootstrap -v &&
 deploy tutorial nodecellar blueprint
 cd ~
 echo deploying nodecellar blueprint
-wget https://github.com/cloudify-cosmo/cloudify-nodecellar-cloudstack/archive/master.tar.gz
-mkdir -p ~/cloudify/blueprints
-tar -C ~/cloudify/blueprints -xzvf master.tar.gz
+wget https://github.com/cloudify-cosmo/cloudify-nodecellar-singlehost/archive/master.tar.gz
+mkdir -p ~/simple/blueprints
+tar -C ~/simple/blueprints -xzvf master.tar.gz
 rm master.tar.gz
 
 # source virtualenv on login
 echo "source /home/${USERNAME}/cloudify/bin/activate" >> /home/${USERNAME}/.bashrc
+
+# set shell login base dir
+echo "cd ~/simple" >> /home/${USERNAME}/.bashrc
 
 echo bootstrap done.

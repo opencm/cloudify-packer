@@ -1,4 +1,4 @@
-cloudify-demos
+cloudify-packer
 ==============
 
-Home for all Cloudify demos
+Creates Cloudify images in different provisioners

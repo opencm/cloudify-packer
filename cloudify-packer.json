@@ -55,13 +55,13 @@
     },
     {
       "type": "shell",
-      "script": "provision.sh",
+      "script": "vagrant/provision.sh",
       "environment_vars": [
-        "COMPONENTS_PACKAGE_URL={{ components_package_url }}",
-        "CORE_PACKAGE_URL={{ core_package_url }}",
-        "UI_PACKAGE_URL={{ ui_package_url }}",
-        "UBUNTU_AGENT_URL={{ ubuntu_agent_url }}",
-        "WINDOWS_AGENT_URL={{ windows_agent_url }}"
+        "COMPONENTS_PACKAGE_URL=http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-components_amd64.deb",
+        "CORE_PACKAGE_URL=http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-core_amd64.deb",
+        "UI_PACKAGE_URL=http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ui_amd64.deb",
+        "UBUNTU_AGENT_URL=http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ubuntu-agent_amd64.deb",
+        "WINDOWS_AGENT_URL=http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-windows-agent_amd64.deb"
       ]
     }
   ],
@@ -69,7 +69,7 @@
     {
       "type": "vagrant",
       "compression_level": 9,
-      "output": "cloudify_{{ release }}_{{.Provider}}.box"
+      "output": "cloudify_nightly_{{.Provider}}.box"
     }
   ]
 }
