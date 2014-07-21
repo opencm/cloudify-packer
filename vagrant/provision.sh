@@ -6,7 +6,7 @@ sudo apt-get -y update &&
 
 # install prereqs
 echo installing prerequisites
-sudo apt-get install -y curl python-dev vim
+sudo apt-get install -y curl python-dev vim git
 
 # install pip
 curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py | sudo python
@@ -25,8 +25,7 @@ source cloudify/bin/activate &&
 echo installing cli
 pip install https://github.com/cloudify-cosmo/cloudify-rest-client/archive/develop.zip
 pip install https://github.com/cloudify-cosmo/cloudify-dsl-parser/archive/develop.zip
-# pip install https://github.com/cloudify-cosmo/cloudify-cli/archive/feature/CFY-919-bootstrap-existing-vm.zip &&
-pip install https://github.com/cloudify-cosmo/cloudify-cli/archive/feature/CFY-923-fix-distro-ident-bug.zip &&
+pip install https://github.com/cloudify-cosmo/cloudify-cli/archive/develop.zip &&
 
 # add cfy bash completion
 activate_cfy_bash_completion
@@ -55,17 +54,18 @@ sed -i "s|Enter-SSH-Key-Path-Here|/home/${USERNAME}/.ssh/cloudify_private_key|g"
 sed -i "s|Enter-SSH-Username-Here|${USERNAME}|g" cloudify-config.yaml
 
 # configure yaml packages
-sed -i "s|{{ components_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-components_amd64.deb|g" cloudify-config.yaml
-sed -i "s|{{ core_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-core_amd64.deb|g" cloudify-config.yaml
-sed -i "s|{{ ui_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ui_amd64.deb|g" cloudify-config.yaml
-sed -i "s|{{ ubuntu_agent_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ubuntu-agent_amd64.deb|g" cloudify-config.yaml
-sed -i "s|{{ windows_agent_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-windows-agent_amd64.deb|g" cloudify-config.yaml
+# sed -i "s|{{ components_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-components_amd64.deb|g" cloudify-config.yaml
+# sed -i "s|{{ core_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-core_amd64.deb|g" cloudify-config.yaml
+# sed -i "s|{{ ui_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ui_amd64.deb|g" cloudify-config.yaml
+# sed -i "s|{{ ubuntu_agent_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ubuntu-agent_amd64.deb|g" cloudify-config.yaml
+# sed -i "s|{{ windows_agent_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-windows-agent_amd64.deb|g" cloudify-config.yaml
 
-# sed -i "s|{{ components_package_url }}|${COMPONENTS_PACKAGE_URL}|g" cloudify-config.yaml
-# sed -i "s|{{ core_package_url }}|${CORE_PACKAGE_URL}|g" cloudify-config.yaml
-# sed -i "s|{{ ui_package_url }}|${UI_PACKAGE_URL}|g" cloudify-config.yaml
-# sed -i "s|{{ ubuntu_agent_url }}|${UBUNTU_AGENT_URL}|g" cloudify-config.yaml
-# sed -i "s|{{ windows_agent_url }}|${WINDOWS_AGENT_URL}|g" cloudify-config.yaml
+sed -i "s|{{ components_package_url }}|${COMPONENTS_PACKAGE_URL}|g" cloudify-config.yaml
+sed -i "s|{{ core_package_url }}|${CORE_PACKAGE_URL}|g" cloudify-config.yaml
+sed -i "s|{{ ui_package_url }}|${UI_PACKAGE_URL}|g" cloudify-config.yaml
+sed -i "s|{{ ubuntu_agent_url }}|${UBUNTU_AGENT_URL}|g" cloudify-config.yaml
+sed -i "s|{{ centos_agent_url }}|${CENTOS_AGENT_URL}|g" cloudify-config.yaml
+sed -i "s|{{ windows_agent_url }}|${WINDOWS_AGENT_URL}|g" cloudify-config.yaml
 
 # configure user for agents
 sed -i "s|#user: (no default - optional parameter)|user: ${USERNAME}|g" cloudify-config.yaml
@@ -76,14 +76,8 @@ sed -i "s|^# ||g" cloudify-config.yaml
 # bootstrap the manager locally
 cfy bootstrap -v &&
 
-# deploy blueprint
-deploy tutorial nodecellar blueprint
-cd ~
-echo deploying nodecellar blueprint
-wget https://github.com/cloudify-cosmo/cloudify-nodecellar-singlehost/archive/master.tar.gz
+# create blueprints dir
 mkdir -p ~/simple/blueprints
-tar -C ~/simple/blueprints -xzvf master.tar.gz
-rm master.tar.gz
 
 # source virtualenv on login
 echo "source /home/${USERNAME}/cloudify/bin/activate" >> /home/${USERNAME}/.bashrc
