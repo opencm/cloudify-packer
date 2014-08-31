@@ -1,3 +1,7 @@
+DSL_SHA=""
+REST_CLIENT_SHA=""
+CLI_SHA=""
+
 echo bootstrapping...
 
 # update
@@ -23,9 +27,29 @@ source cloudify/bin/activate &&
 
 # install cli
 echo installing cli
-pip install https://github.com/cloudify-cosmo/cloudify-rest-client/archive/develop.zip
-pip install https://github.com/cloudify-cosmo/cloudify-dsl-parser/archive/develop.zip
-pip install https://github.com/cloudify-cosmo/cloudify-cli/archive/develop.zip &&
+git clone https://github.com/cloudify-cosmo/cloudify-dsl-parser.git
+pushd cloudify-dsl-parser
+	if [ -n "$DSL_SHA" ]; then
+		git reset --hard $DSL_SHA
+	fi
+	pip install .
+popd
+
+git clone https://github.com/cloudify-cosmo/cloudify-rest-client.git
+pushd cloudify-rest-client
+	if [ -n "$REST_CLIENT_SHA" ]; then	
+		git reset --hard $REST_CLIENT_SHA
+	fi
+	pip install .
+popd
+
+git clone https://github.com/cloudify-cosmo/cloudify-cli.git
+pushd cloudify-cli
+	if [ -n "$CLI_SHA" ]; then
+		git reset --hard $CLI_SHA
+	fi
+	pip install .
+popd
 
 # add cfy bash completion
 activate_cfy_bash_completion
@@ -53,19 +77,6 @@ sed -i "s|Enter-Private-IP-Here|127.0.0.1|g" cloudify-config.yaml
 sed -i "s|Enter-SSH-Key-Path-Here|/home/${USERNAME}/.ssh/cloudify_private_key|g" cloudify-config.yaml
 sed -i "s|Enter-SSH-Username-Here|${USERNAME}|g" cloudify-config.yaml
 
-# configure yaml packages
-# sed -i "s|{{ components_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-components_amd64.deb|g" cloudify-config.yaml
-# sed -i "s|{{ core_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-core_amd64.deb|g" cloudify-config.yaml
-# sed -i "s|{{ ui_package_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ui_amd64.deb|g" cloudify-config.yaml
-# sed -i "s|{{ ubuntu_agent_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-ubuntu-agent_amd64.deb|g" cloudify-config.yaml
-# sed -i "s|{{ windows_agent_url }}|http://gigaspaces-repository-eu.s3.amazonaws.com/org/cloudify3/nightly/cloudify-windows-agent_amd64.deb|g" cloudify-config.yaml
-
-sed -i "s|{{ components_package_url }}|${COMPONENTS_PACKAGE_URL}|g" cloudify-config.yaml
-sed -i "s|{{ core_package_url }}|${CORE_PACKAGE_URL}|g" cloudify-config.yaml
-sed -i "s|{{ ui_package_url }}|${UI_PACKAGE_URL}|g" cloudify-config.yaml
-sed -i "s|{{ ubuntu_agent_url }}|${UBUNTU_AGENT_URL}|g" cloudify-config.yaml
-sed -i "s|{{ centos_agent_url }}|${CENTOS_AGENT_URL}|g" cloudify-config.yaml
-sed -i "s|{{ windows_agent_url }}|${WINDOWS_AGENT_URL}|g" cloudify-config.yaml
 
 # configure user for agents
 sed -i "s|#user: (no default - optional parameter)|user: ${USERNAME}|g" cloudify-config.yaml
